@@ -1,0 +1,7 @@
+let
+    Source = Csv.Document(File.Contents("C:\Users\lukew\OneDrive\Desktop\Final Project Docs\Zomato Data\users.csv"),[Delimiter=",", Columns=12, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"", Int64.Type}, {"user_id", Int64.Type}, {"name", type text}, {"email", type text}, {"password", type text}, {"Age", Int64.Type}, {"Gender", type text}, {"Marital Status", type text}, {"Occupation", type text}, {"Monthly Income", type text}, {"Educational Qualifications", type text}, {"Family size", Int64.Type}}),
+    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"name", "email", "password", "Gender", "Marital Status", "Educational Qualifications", ""})
+in
+    #"Removed Columns"

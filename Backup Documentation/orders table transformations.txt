@@ -1,0 +1,13 @@
+let
+    Source = Csv.Document(File.Contents("C:\Users\lukew\OneDrive\Desktop\Final Project Docs\Zomato Data\orders.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.Csv]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"", Int64.Type}, {"order_date", type date}, {"sales_qty", Int64.Type}, {"sales_amount", Int64.Type}, {"currency", type text}, {"user_id", Int64.Type}, {"r_id", Int64.Type}}),
+    #"Renamed Column1 to order_id" = Table.RenameColumns(#"Changed Type",{{"", "order_id"}}),
+    #"Trimmed Text" = Table.TransformColumns(#"Renamed Column1 to order_id",{{"currency", Text.Trim, type text}}),
+//https://www.exchange-rates.org/converter/inr-usd updated 2025-11-31 at 4:30 PM UTC
+    #"Added Conditional Column" = Table.AddColumn(#"Trimmed Text", "INR to USD", each if [currency] = "INR" then [sales_amount] * 0.01155 else [sales_amount]),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Added Conditional Column",{{"INR to USD", Currency.Type}}),
+    #"Removed Columns" = Table.RemoveColumns(#"Changed Type1",{"sales_amount", "currency"}),
+    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"INR to USD", "sales_amount"}})
+in
+    #"Renamed Columns"

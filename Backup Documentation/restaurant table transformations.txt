@@ -1,0 +1,12 @@
+let
+    Source = Csv.Document(File.Contents("C:\Users\lukew\OneDrive\Desktop\Final Project Docs\Zomato Data\restaurant.csv"),[Delimiter=",", Encoding=1252]),
+    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"", Int64.Type}, {"id", Int64.Type}, {"name", type text}, {"city", type text}, {"rating", type text}, {"rating_count", type text}, {"cost", type text}, {"cuisine", type text}, {"lic_no", type text}, {"link", type text}, {"address", type text}, {"menu", type text}}),
+    #"Split Column by Delimiter" = Table.SplitColumn(#"Changed Type", "cost", Splitter.SplitTextByDelimiter(" ", QuoteStyle.Csv), {"cost.1", "cost.2"}),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Split Column by Delimiter",{{"cost.1", type text}, {"cost.2", Int64.Type}}),
+    //https://www.exchange-rates.org/converter/inr-usd updated 2025-11-31 at 4:30 PM UTC
+    #"Added Custom" = Table.AddColumn(#"Changed Type1", "Cost USD", each [cost.2] * 0.01155),
+    #"Changed Type2" = Table.TransformColumnTypes(#"Added Custom",{{"Cost USD", Currency.Type}}),
+    #"Removed Columns" = Table.RemoveColumns(#"Changed Type2",{"", "name", "city", "cuisine", "lic_no", "link", "address", "menu", "cost.1", "cost.2"})
+in
+    #"Removed Columns"
